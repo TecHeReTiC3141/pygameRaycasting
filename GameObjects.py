@@ -3,6 +3,8 @@ from const import *
 
 class Player:
 
+
+
     def __init__(self, x, y):
         self.x, self.y = x, y
         self.surf = pygame.Surface((50, 50))
@@ -12,12 +14,16 @@ class Player:
         self.speed = 5
         self.angle = 0
 
+
     def draw(self, display: pygame.Surface):
         pygame.draw.circle(self.surf, 'green', (25, 25), 25)
+
         pygame.draw.line(display, 'green', self.cur_rect.center,
                          (self.cur_rect.centerx + DISP_WIDTH * math.cos(self.angle),
                           self.cur_rect.centery + DISP_HEIGHT * math.sin(self.angle)))
         display.blit(self.surf, self.cur_rect)
+
+
 
     def move(self):
         self.prev_rect = self.cur_rect.copy()
@@ -87,3 +93,22 @@ class Room:
     def physics(self, entity: Player):
         for wall in self.walls:
             wall.collide(entity)
+
+    def raycasting(self, player: Player, display: pygame.Surface):
+        cur_ang = player.angle - FOV / 2
+        for ray in range(NUM_RAYS):
+            cur_ang += FOV / NUM_RAYS
+            sin_r, cos_r = math.sin(cur_ang), math.cos(cur_ang)
+            coll = False
+            for depth in range(0, MAX_DEPTH, 10):
+                x = player.cur_rect.centerx + depth * cos_r
+                y = player.cur_rect.centery + depth * sin_r
+
+                for wall in self.walls:
+                    if wall.cur_rect.collidepoint((x, y)):
+                        coll = True
+                        break
+                if coll:
+                    break
+                pygame.draw.line(display, 'darkgray',
+                                player.cur_rect.center, (x, y))

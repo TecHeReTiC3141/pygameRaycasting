@@ -18,6 +18,7 @@ while True:
 
     room.draw(display)
     room.physics(player)
+    room.raycasting(player, display)
     player.draw(display)
     player.move()
 
