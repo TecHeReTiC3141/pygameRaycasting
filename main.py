@@ -1,5 +1,3 @@
-import pygame
-from const import *
 from GameObjects import *
 
 pygame.init()
