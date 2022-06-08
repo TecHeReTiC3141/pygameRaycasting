@@ -102,7 +102,7 @@ class Room:
 
     def raycasting(self, player: Player, display: pygame.Surface, game_mode: str):
         cur_ang = player.angle - FOV / 2
-        for ray in range(NUM_RAYS):
+        for ray in range(NUM_RAYS + 1):
             cur_ang += FOV / NUM_RAYS
             sin_r, cos_r = math.sin(cur_ang), math.cos(cur_ang)
             coll = False
@@ -114,7 +114,7 @@ class Room:
                     if wall.cur_rect.collidepoint((x, y)):
                         depth  *= math.cos(player.angle - cur_ang)
                         obst_height = PROJ_COEFF / depth
-                        color = 255 / (1 + .0001 * depth ** 2)
+                        color = 255 / (1 + .00003 * depth ** 2)
 
                         if game_mode == '3d':
                             pygame.draw.rect(display, tuple(color for _ in '...'),

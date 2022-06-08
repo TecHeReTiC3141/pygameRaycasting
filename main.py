@@ -27,11 +27,14 @@ while True:
 
     display.fill('black')
 
+
     if game_mode == '2d':
         room.draw(display)
         room.raycasting(player, display, game_mode)
         player.draw(display)
     else:
+        pygame.draw.rect(display, 'lightblue', (0, 0, DISP_WIDTH, DISP_HEIGHT // 2))
+        pygame.draw.rect(display, 'darkgray', (0, DISP_HEIGHT // 2, DISP_WIDTH, DISP_HEIGHT))
         mini_map.fill('black')
         room.draw(mini_map, 3)
         room.raycasting(player, display, game_mode)
@@ -40,6 +43,11 @@ while True:
     room.physics(player)
 
     player.move()
+    mouse_pos = pygame.mouse.get_pos()
+    if DISP_WIDTH - mouse_pos[0] <= 30:
+        pygame.mouse.set_pos((35, mouse_pos[1]))
+    elif mouse_pos[0] <= 30:
+        pygame.mouse.set_pos((DISP_WIDTH - 35, mouse_pos[1]))
 
     pygame.display.update()
     clock.tick(60)
