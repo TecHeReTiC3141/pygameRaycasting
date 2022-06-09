@@ -13,15 +13,12 @@ class Player:
         self.angle = 0
 
     def draw(self, display: pygame.Surface, coef=1):
-        pygame.draw.circle(self.surf, 'green', (25, 25), 25)
-
-        pygame.draw.line(display, 'green', self.cur_rect.center,
-                         (self.cur_rect.centerx + DISP_WIDTH * math.cos(self.angle),
-                          self.cur_rect.centery + DISP_HEIGHT * math.sin(self.angle)))
-        display.blit(self.surf, (self.cur_rect.left // coef,
-                                            self.cur_rect.top // coef,
-                                            self.cur_rect.width ,
-                                            self.cur_rect.height,))
+        pygame.draw.circle(display, 'green', (self.cur_rect.centerx // coef,
+                                            self.cur_rect.centery // coef), 25 // coef)
+        pygame.draw.line(display, 'red', (self.cur_rect.centerx // coef,
+                                            self.cur_rect.centery // coef),
+                         (self.cur_rect.centerx + DISP_WIDTH * cos(self.angle),
+                         (self.cur_rect.centery + DISP_HEIGHT * sin(self.angle))))
 
 
 
@@ -29,7 +26,7 @@ class Player:
         self.prev_rect = self.cur_rect.copy()
         move = pygame.Vector2(0, 0)
         keys = pygame.key.get_pressed()
-        sin_a, cos_a = math.sin(self.angle), math.cos(self.angle)
+        sin_a, cos_a = sin(self.angle), cos(self.angle)
         if keys[pygame.K_a]:
             move.x += sin_a
             move.y += -cos_a
@@ -54,7 +51,7 @@ class Player:
 
 class Wall:
 
-    def __init__(self, x, y, width=100, height=100):
+    def __init__(self, x, y, width=WALL_SIZE, height=WALL_SIZE):
         self.cur_rect = pygame.Rect(x, y, width, height)
 
     def draw(self, display: pygame.Surface, coef=1):
@@ -90,7 +87,7 @@ class Room:
         for i in range(len(map)):
             for j in range(len(map[0])):
                 if map[i][j] == '#':
-                    self.walls.append(Wall(j * 100, i * 100))
+                    self.walls.append(Wall(j * WALL_SIZE, i * WALL_SIZE))
 
     def draw(self, display: pygame.Surface, coef=1):
         for wall in self.walls:
@@ -104,7 +101,7 @@ class Room:
         cur_ang = player.angle - FOV / 2
         for ray in range(NUM_RAYS + 1):
             cur_ang += FOV / NUM_RAYS
-            sin_r, cos_r = math.sin(cur_ang), math.cos(cur_ang)
+            sin_r, cos_r = sin(cur_ang), cos(cur_ang)
             coll = False
             for depth in range(0, MAX_DEPTH, 8):
                 x = player.cur_rect.centerx + depth * cos_r
@@ -112,7 +109,7 @@ class Room:
 
                 for wall in self.walls:
                     if wall.cur_rect.collidepoint((x, y)):
-                        depth  *= math.cos(player.angle - cur_ang)
+                        depth  *= cos(player.angle - cur_ang)
                         obst_height = PROJ_COEFF / depth
                         color = 255 / (1 + .00003 * depth ** 2)
 
@@ -127,3 +124,42 @@ class Room:
                 if game_mode == '2d':
                     pygame.draw.line(display, 'darkgray',
                                 player.cur_rect.center, (x, y))
+
+    def optim_raycasting(self, player: Player, display: pygame.Surface, game_mode: str):
+        x0, y0 = player.cur_rect.center
+        cur_ang = player.angle - FOV / 2
+        for ray in range(NUM_RAYS):
+
+            cur_ang += FOV / NUM_RAYS
+            sin_r, cos_r = sin(cur_ang), cos(cur_ang)
+            depthhor, depthvert = float('inf'), float('inf')
+            # horizontal
+            for hory in (range(0, y0 // WALL_SIZE * WALL_SIZE, WALL_SIZE) if sin_r <= 0
+            else range(ceil(y0 // WALL_SIZE) *  WALL_SIZE, DISP_HEIGHT, WALL_SIZE)):
+                depth_h = (hory - y0) / sin_r
+                horx = x0 + depth_h * cos_r
+                for wall in self.walls:
+                    if wall.cur_rect.collidepoint((horx, hory)):
+
+                        break
+            #vert
+            for vertx in (range(0, x0 // WALL_SIZE * WALL_SIZE, WALL_SIZE) if cos_r <= 0
+            else range(ceil(x0 // WALL_SIZE) *  WALL_SIZE, DISP_WIDTH, WALL_SIZE)):
+                depth_v = (vertx - x0) / cos_r
+                verty = y0 + depth_v * sin_r
+                for wall in self.walls:
+                    if wall.cur_rect.collidepoint((vertx, verty)):
+
+                        break
+            mi_depth = min(depth_v, depth_h, MAX_DEPTH)
+            x, y = x0 + mi_depth * cos_r, y0 + mi_depth * sin_r
+            mi_depth *= cos(player.angle - cur_ang)
+            obst_height = PROJ_COEFF / mi_depth
+            color = 255 / (1 + .00003 * mi_depth ** 2)
+            if game_mode == '3d':
+                pygame.draw.rect(display, tuple(color for _ in '...'),
+                             (ray * SCALE,
+                              DISP_HEIGHT // 2 - obst_height // 2, SCALE, obst_height))
+            elif game_mode == '2d':
+                pygame.draw.line(display, 'darkgray',
+                         player.cur_rect.center, (x, y))
