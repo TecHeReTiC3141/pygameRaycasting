@@ -2,6 +2,7 @@ from GameObjects import *
 from Drawing import Drawing
 
 display = pygame.display.set_mode((DISP_WIDTH, DISP_HEIGHT))
+pygame.display.set_caption('3D-Raycasting')
 clock = pygame.time.Clock()
 
 player = Player(DISP_WIDTH // 2, DISP_HEIGHT // 2)
@@ -48,8 +49,6 @@ while True:
     pygame.display.update()
     clock.tick(60)
     tick += 1
-    if not tick % 100:
-        print(pygame.mouse.get_rel())
 
     # updating cursor position
     mouse_pos = pygame.mouse.get_pos()

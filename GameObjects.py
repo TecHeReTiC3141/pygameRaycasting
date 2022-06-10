@@ -17,8 +17,8 @@ class Player:
                                             self.cur_rect.centery // coef), 25 // coef)
         pygame.draw.line(display, 'red', (self.cur_rect.centerx // coef,
                                             self.cur_rect.centery // coef),
-                         (self.cur_rect.centerx + DISP_WIDTH * cos(self.angle),
-                         (self.cur_rect.centery + DISP_HEIGHT * sin(self.angle))))
+                         ((self.cur_rect.centerx + 50 * cos(self.angle)) // coef,
+                         (self.cur_rect.centery + 50 * sin(self.angle)) // coef), width=5)
 
 
 
@@ -56,10 +56,10 @@ class Wall:
 
     def draw(self, display: pygame.Surface, coef=1):
 
-        pygame.draw.rect(display, 'white', (self.cur_rect.left // coef,
+        pygame.draw.rect(display, 'darkgreen', (self.cur_rect.left // coef,
                                             self.cur_rect.top // coef,
                                             self.cur_rect.width // coef,
-                                            self.cur_rect.height // coef,), width=5)
+                                            self.cur_rect.height // coef,))
 
     def collide(self, entity: Player):
         if entity.cur_rect.colliderect(self.cur_rect):
