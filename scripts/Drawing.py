@@ -1,5 +1,6 @@
 from GameObjects import *
 
+# TODO implement dynamic sky
 class Drawing:
 
     def __init__(self, surf: pygame.Surface):
