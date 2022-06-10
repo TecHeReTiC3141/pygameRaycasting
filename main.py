@@ -21,10 +21,7 @@ while True:
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
-                if game_mode == '2d':
-                    game_mode = '3d'
-                else:
-                    game_mode = '2d'
+                game_mode = '3d' if game_mode == '2d' else '2d'
 
     display.fill('black')
 
@@ -43,6 +40,8 @@ while True:
 
     display.blit(font.render(f'FPS: {round(clock.get_fps())}',
                              True, 'red'), (20, 20))
+    display.blit(font.render(f'Angle: {round(degrees(player.angle))}',
+                             True, 'red'), (220, 20))
     room.physics(player)
     player.move()
 
