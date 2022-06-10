@@ -1,4 +1,4 @@
-from const import *
+from scripts.const import *
 
 
 class Player:
@@ -128,7 +128,9 @@ class Room:
     def mapping(x, y) -> tuple:
         return (x // WALL_SIZE) * WALL_SIZE, (y // WALL_SIZE) * WALL_SIZE
 
-    def optim_raycasting(self, player: Player, display: pygame.Surface, game_mode: str):
+    def optim_raycasting(self, player: Player, display: pygame.Surface,
+                         game_mode: str, texture: pygame.Surface):
+        texture_scale = texture.get_width() // WALL_SIZE
         x0, y0 = player.cur_rect.center
         xm, ym = self.mapping(*player.cur_rect.center)
         cur_ang = player.angle - FOV / 2
@@ -165,15 +167,19 @@ class Room:
                     break
                 vertx += WALL_SIZE * dx
 
-            mi_depth = min(depth_v, depth_h)
+            mi_depth, offset = (depth_v, int(verty))\
+                if depth_v < depth_h else (depth_h, int(horx))
+            offset %= WALL_SIZE
 
             if mi_depth < MAX_DEPTH and game_mode == '3d':
                 mi_depth *= cos(player.angle - cur_ang)
                 obst_height = PROJ_COEFF / mi_depth
                 color = 255 / (1 + .00003 * mi_depth ** 2)
-                pygame.draw.rect(display, tuple(color for _ in '...'),
-                                 (ray * SCALE,
-                                  DISP_HEIGHT // 2 - obst_height // 2, SCALE, obst_height))
+                wall_slice = texture.subsurface(offset * texture_scale, 0,
+                                                texture_scale,texture.get_height())
+                wall_slice = pygame.transform.scale(wall_slice, (SCALE, obst_height))
+                display.blit(wall_slice, (ray * SCALE, DISP_HEIGHT // 2 - obst_height // 2))
+
             elif game_mode == '2d':
                 x, y = x0 + min(mi_depth, MAX_DEPTH) * cos_r, \
                    y0 + min(mi_depth, MAX_DEPTH) * sin_r

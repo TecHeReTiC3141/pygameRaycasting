@@ -28,13 +28,13 @@ while True:
 
     if game_mode == '2d':
         room.draw(display)
-        room.optim_raycasting(player, display, game_mode)
+        room.optim_raycasting(player, display, game_mode, stone_wall2)
         player.draw(display)
     else:
         draw.background()
         mini_map.fill('black')
         room.draw(mini_map, 3)
-        room.optim_raycasting(player, display, game_mode)
+        room.optim_raycasting(player, display, game_mode, stone_wall2)
 
         player.draw(mini_map, 3)
         display.blit(mini_map, (0, DISP_HEIGHT * 2 // 3))

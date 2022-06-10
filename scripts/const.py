@@ -1,5 +1,6 @@
 from math import *
 import pygame
+from pathlib import Path
 
 pygame.init()
 
@@ -27,3 +28,9 @@ map = [
     '#.......#......#',
     '################'
 ]
+
+#main_dir = Path('../../pygameRaycasting')
+
+# sprites
+stone_wall1 = pygame.image.load('../sprites/stone_wall.jpg')
+stone_wall2 = pygame.image.load('../sprites/stone_wall2.jpg')
