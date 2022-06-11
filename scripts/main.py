@@ -31,7 +31,7 @@ while True:
         room.optim_raycasting(player, display, game_mode)
         player.draw(display)
     else:
-        draw.background()
+        draw.background(player)
         mini_map.fill('black')
         room.draw(mini_map, 4)
         room.optim_raycasting(player, display, game_mode)
