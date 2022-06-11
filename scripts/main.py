@@ -8,7 +8,7 @@ clock = pygame.time.Clock()
 player = Player(DISP_WIDTH // 2, DISP_HEIGHT // 2)
 room = Room(map)
 game_mode = '2d'
-mini_map = pygame.Surface((DISP_WIDTH // 3, DISP_HEIGHT // 3))
+mini_map = pygame.Surface((DISP_WIDTH // 4, DISP_HEIGHT // 4))
 mini_map.set_alpha(200)
 tick = 0
 
@@ -31,13 +31,13 @@ while True:
         room.optim_raycasting(player, display, game_mode)
         player.draw(display)
     else:
-        draw.background()
+        draw.background(player)
         mini_map.fill('black')
-        room.draw(mini_map, 3)
+        room.draw(mini_map, 4)
         room.optim_raycasting(player, display, game_mode)
 
-        player.draw(mini_map, 3)
-        display.blit(mini_map, (0, DISP_HEIGHT * 2 // 3))
+        player.draw(mini_map, 4)
+        display.blit(mini_map, (0, DISP_HEIGHT * 3 // 4))
 
     display.blit(font.render(f'FPS: {round(clock.get_fps())}',
                              True, 'red'), (20, 20))

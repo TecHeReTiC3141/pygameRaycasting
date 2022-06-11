@@ -1,5 +1,4 @@
-from const import *
-
+from scripts.const import *
 
 class Player:
 
@@ -19,8 +18,6 @@ class Player:
                                             self.cur_rect.centery // coef),
                          ((self.cur_rect.centerx + 50 * cos(self.angle)) // coef,
                          (self.cur_rect.centery + 50 * sin(self.angle)) // coef), width=5)
-
-
 
     def move(self):
         self.prev_rect = self.cur_rect.copy()
@@ -51,8 +48,14 @@ class Player:
 
 class Wall:
 
-    def __init__(self, x, y, width=WALL_SIZE, height=WALL_SIZE):
+    wall_textures = {
+        '1': stone_wall1,
+        '2': stone_wall2
+    }
+
+    def __init__(self, x, y, text_ind, width=WALL_SIZE, height=WALL_SIZE):
         self.cur_rect = pygame.Rect(x, y, width, height)
+        self.texture = self.wall_textures[text_ind]
 
     def draw(self, display: pygame.Surface, coef=1):
 
@@ -85,8 +88,8 @@ class Room:
         self.walls = []
         for i in range(len(map)):
             for j in range(len(map[0])):
-                if map[i][j] == '#':
-                    self.walls.append(Wall(j * WALL_SIZE, i * WALL_SIZE))
+                if map[i][j] != '.':
+                    self.walls.append(Wall(j * WALL_SIZE, i * WALL_SIZE, map[i][j]))
 
     def draw(self, display: pygame.Surface, coef=1):
         for wall in self.walls:
@@ -128,7 +131,8 @@ class Room:
     def mapping(x, y) -> tuple:
         return (x // WALL_SIZE) * WALL_SIZE, (y // WALL_SIZE) * WALL_SIZE
 
-    def optim_raycasting(self, player: Player, display: pygame.Surface, game_mode: str):
+    def optim_raycasting(self, player: Player, display: pygame.Surface,
+                         game_mode: str):
         x0, y0 = player.cur_rect.center
         xm, ym = self.mapping(*player.cur_rect.center)
         cur_ang = player.angle - FOV / 2
@@ -145,6 +149,7 @@ class Room:
                 for wall in self.walls:
                     if wall.cur_rect.collidepoint(horx, hory + dy):
                         stop = True
+                        wall_h_texture = wall.texture
                         break
                 if stop:
                     break
@@ -160,20 +165,25 @@ class Room:
                 for wall in self.walls:
                     if wall.cur_rect.collidepoint(vertx + dx, verty):
                         stop = True
+                        wall_v_texture = wall.texture
                         break
                 if stop:
                     break
                 vertx += WALL_SIZE * dx
 
-            mi_depth = min(depth_v, depth_h)
+            mi_depth, offset, texture = (depth_v, int(verty), wall_v_texture)\
+                if depth_v < depth_h else (depth_h, int(horx), wall_h_texture)
+            offset %= WALL_SIZE
 
             if mi_depth < MAX_DEPTH and game_mode == '3d':
                 mi_depth *= cos(player.angle - cur_ang)
                 obst_height = PROJ_COEFF / mi_depth
-                color = 255 / (1 + .00003 * mi_depth ** 2)
-                pygame.draw.rect(display, tuple(color for _ in '...'),
-                                 (ray * SCALE,
-                                  DISP_HEIGHT // 2 - obst_height // 2, SCALE, obst_height))
+
+                wall_slice = texture.subsurface(offset * TEXTURE_SCALE, 0,
+                                                TEXTURE_SCALE,texture.get_height())
+                wall_slice = pygame.transform.scale(wall_slice, (SCALE, obst_height))
+                display.blit(wall_slice, (ray * SCALE, DISP_HEIGHT // 2 - obst_height // 2))
+
             elif game_mode == '2d':
                 x, y = x0 + min(mi_depth, MAX_DEPTH) * cos_r, \
                    y0 + min(mi_depth, MAX_DEPTH) * sin_r
