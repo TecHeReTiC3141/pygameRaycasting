@@ -6,7 +6,7 @@ class Drawing:
 
     def __init__(self, surf: pygame.Surface):
         self.surf = surf
-        self.sky = pygame.transform.scale(pygame.image.load('../sprites/sky.jpg'),
+        self.sky = pygame.transform.scale(pygame.image.load('../textures/sky.jpg'),
                                           (DISP_WIDTH, DISP_HEIGHT // 2))
 
     def background(self, player: Player):

@@ -31,6 +31,6 @@ map = [
 
 TEXTURE_SIZE = (1200, 1200)
 TEXTURE_SCALE = TEXTURE_SIZE[0] // WALL_SIZE
-# sprites
-stone_wall1 = pygame.transform.scale(pygame.image.load('../sprites/stone_wall.jpg'), TEXTURE_SIZE)
-stone_wall2 = pygame.transform.scale(pygame.image.load('../sprites/stone_wall2.jpg'), TEXTURE_SIZE)
+# textures
+stone_wall1 = pygame.transform.scale(pygame.image.load('../textures/stone_wall.jpg'), TEXTURE_SIZE)
+stone_wall2 = pygame.transform.scale(pygame.image.load('../textures/stone_wall2.jpg'), TEXTURE_SIZE)

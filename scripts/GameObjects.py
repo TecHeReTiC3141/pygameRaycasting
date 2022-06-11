@@ -48,14 +48,14 @@ class Player:
 
 class Wall:
 
-    wall_textures = {
+    textures = {
         '1': stone_wall1,
         '2': stone_wall2
     }
 
     def __init__(self, x, y, text_ind, width=WALL_SIZE, height=WALL_SIZE):
         self.cur_rect = pygame.Rect(x, y, width, height)
-        self.texture = self.wall_textures[text_ind]
+        self.texture = self.textures[text_ind]
 
     def draw(self, display: pygame.Surface, coef=1):
 
@@ -82,6 +82,22 @@ class Wall:
                 entity.cur_rect.top = self.cur_rect.bottom
 
 
+class Sprite(Wall):
+    sprite = pygame.Surface((50, 50))
+    is_obst = True
+
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+        self.rect = pygame.Rect(x, y, WALL_SIZE, WALL_SIZE)
+
+    def collide(self, entity: Player):
+        if not self.is_obst:
+            return
+        super().collide(entity)
+
+class Torch(Sprite):
+    pass
+
 class Room:
 
     def __init__(self, map: list[str]):
@@ -98,34 +114,6 @@ class Room:
     def physics(self, entity: Player):
         for wall in self.walls:
             wall.collide(entity)
-
-    def raycasting(self, player: Player, display: pygame.Surface, game_mode: str):
-        cur_ang = player.angle - FOV / 2
-        for ray in range(NUM_RAYS + 1):
-            cur_ang += FOV / NUM_RAYS
-            sin_r, cos_r = sin(cur_ang), cos(cur_ang)
-            coll = False
-            for depth in range(0, MAX_DEPTH, 8):
-                x = player.cur_rect.centerx + depth * cos_r
-                y = player.cur_rect.centery + depth * sin_r
-
-                for wall in self.walls:
-                    if wall.cur_rect.collidepoint((x, y)):
-                        depth  *= cos(player.angle - cur_ang)
-                        obst_height = PROJ_COEFF / depth
-                        color = 255 / (1 + .00003 * depth ** 2)
-
-                        if game_mode == '3d':
-                            pygame.draw.rect(display, tuple(color for _ in '...'),
-                                         (ray * SCALE,
-                                          DISP_HEIGHT // 2 - obst_height // 2, SCALE, obst_height))
-                        coll = True
-                        break
-                if coll:
-                    break
-                if game_mode == '2d':
-                    pygame.draw.line(display, 'darkgray',
-                                player.cur_rect.center, (x, y))
 
     @staticmethod
     def mapping(x, y) -> tuple:
@@ -191,3 +179,5 @@ class Room:
                          player.cur_rect.center, (x, y))
 
             cur_ang += FOV / NUM_RAYS
+
+
