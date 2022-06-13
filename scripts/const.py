@@ -4,6 +4,8 @@ from pathlib import Path
 
 pygame.init()
 
+# mock_display =  pygame.display.set_mode((10, 10))
+
 DISP_WIDTH, DISP_HEIGHT = 1200, 720
 WALL_HEIGHT = DISP_HEIGHT // 3
 WALL_SIZE = 80
@@ -14,6 +16,7 @@ MAX_DEPTH = 1000
 SCALE = DISP_WIDTH // NUM_RAYS
 SCREEN_DIST = NUM_RAYS / (2 * tan(FOV / 2))
 PROJ_COEFF = SCREEN_DIST * WALL_HEIGHT
+DELTA_ANGLE = FOV / NUM_RAYS
 
 font = pygame.font.SysFont('Arial', 30)
 

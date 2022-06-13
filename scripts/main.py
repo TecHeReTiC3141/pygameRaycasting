@@ -7,7 +7,7 @@ clock = pygame.time.Clock()
 
 player = Player(DISP_WIDTH // 2, DISP_HEIGHT // 2)
 room = Room(map)
-game_mode = '2d'
+game_mode = '3d'
 mini_map = pygame.Surface((DISP_WIDTH // 4, DISP_HEIGHT // 4))
 mini_map.set_alpha(200)
 tick = 0
@@ -28,21 +28,20 @@ while True:
 
     if game_mode == '2d':
         room.draw(display)
-        room.optim_raycasting(player, display, game_mode)
+        room.raycasting(player, display, game_mode)
         player.draw(display)
+
     else:
         draw.background(player)
         mini_map.fill('black')
         room.draw(mini_map, 4)
-        room.optim_raycasting(player, display, game_mode)
-
+        walls = room.raycasting(player, display, game_mode)
+        draw.draw_objects(walls + [obj.obj_locate() for obj in room.sprites])
         player.draw(mini_map, 4)
         display.blit(mini_map, (0, DISP_HEIGHT * 3 // 4))
 
-    display.blit(font.render(f'FPS: {round(clock.get_fps())}',
-                             True, 'red'), (20, 20))
-    display.blit(font.render(f'Angle: {round(degrees(player.angle))}',
-                             True, 'red'), (220, 20))
+    draw.display_info(clock, player)
+
     room.physics(player)
     player.move()
 
