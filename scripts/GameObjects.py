@@ -86,13 +86,13 @@ class Wall:
 
 class Sprite(Wall):
     sprite = pygame.Surface((50, 50))
+    v_shift = 1.
+    scale = .4
     is_obst = True
 
-    def __init__(self, x, y, v_shift, scale):
+    def __init__(self, x, y,):
         self.x, self.y = x * WALL_SIZE, y * WALL_SIZE
         self.rect = pygame.Rect(x, y, WALL_SIZE, WALL_SIZE)
-        self.scale = scale
-        self.v_shift = v_shift
 
     def collide(self, entity: Player):
         if not self.is_obst:
@@ -109,17 +109,17 @@ class Sprite(Wall):
             gamma += 2 * pi
 
         delta_rays = gamma // DELTA_ANGLE
-        cur_ray = NUM_RAYS // 2 - 1 + delta_rays
+        cur_ray = int(NUM_RAYS // 2 - 1 + delta_rays)
         dist_to_sprite *= cos(FOV // 2 - cur_ray * DELTA_ANGLE)
 
         if 0 <= cur_ray < NUM_RAYS and dist_to_sprite < walls[cur_ray][0]:
-            proj_height = int(PROJ_COEFF // dist_to_sprite * self.scale)
+            proj_height = int(PROJ_COEFF / dist_to_sprite * self.scale)
             half_height = proj_height // 2
             shift = half_height * self.v_shift
 
             sprite_pos = (cur_ray * SCALE - half_height,
                           DISP_HEIGHT // 2 - half_height + shift)
-            sprite = pygame.transform.scale(self.sprite, (proj_height, proj_height))
+            sprite = pygame.transform.scale(self.sprite, (proj_height, proj_height * 1.2))
 
             return dist_to_sprite, sprite, sprite_pos
         return False,
@@ -131,15 +131,17 @@ class Torch(Sprite):
 
 class Barrel(Sprite):
     sprite = pygame.image.load('../sprites/barrel.png')
-
+    v_shift = 1.8
+    scale = .4
 
 class Room:
 
     def __init__(self, map: list[str]):
         self.walls = []
         self.sprites = [
-            Barrel(11.5, 3.5, 1.8, 0.8),
-            Barrel(11.5, 7.5, 1.8, 1.1),
+
+            Barrel(11.5, 3.5,),
+            Barrel(11.5, 7.5),
         ]
         for i in range(len(map)):
             for j in range(len(map[0])):
@@ -159,7 +161,7 @@ class Room:
         return (x // WALL_SIZE) * WALL_SIZE, (y // WALL_SIZE) * WALL_SIZE
 
     def raycasting(self, player: Player, display: pygame.Surface,
-                   game_mode: str):
+                   game_mode: str) -> list:
         obj_to_draw = []
         x0, y0 = player.cur_rect.center
         xm, ym = self.mapping(*player.cur_rect.center)

@@ -36,7 +36,7 @@ while True:
         mini_map.fill('black')
         room.draw(mini_map, 4)
         walls = room.raycasting(player, display, game_mode)
-        draw.draw_objects(walls + [obj.obj_locate() for obj in room.sprites])
+        draw.draw_objects(walls + [obj.obj_locate(player, walls) for obj in room.sprites])
         player.draw(mini_map, 4)
         display.blit(mini_map, (0, DISP_HEIGHT * 3 // 4))
 
